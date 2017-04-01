@@ -30,11 +30,49 @@
 
 #include "MKL25Z4.h"
 #include "dma.h"
+#include "spi.h"
+#include "timer.h"
+
+
+
 
 int main(void)
 {
+	systick_init();
+	uint8_t array1[256]; // source
+	uint8_t array2[256]; // dest
+	uint32_t i;
+
+	for(i = 0; i < 256; ++i){
+		array1[i] = i;
+		array2[i] = 0;
+	}
+	dma_tcd_t ch0_tcd = {.sar = (uint32_t)array1,
+						.dar = (uint32_t)array2,
+						.dsr_bcr = 256,
+						.dcr = (DMA_EINT|DMA_SINC|DMA_SSIZE__8BIT|DMA_DINC|DMA_DSIZE__8BIT)};
+
+	__enable_irq();
+	NVIC_EnableIRQ(DMA0_IRQn);
+	dma_init_ch(DMA_CH0, DMAMUX_ALWAYS_ENABLED1, &ch0_tcd);
+	dma_start_transfer(DMA_CH0);
+
+	/*SPI_Type SPI = {.C1 = (SPI_C1_SPE_MASK|SPI_C1_MSTR_MASK|SPI_C1_SSOE_MASK),
+					.C2 = 0x00,
+					.BR = ((0x03 << SPI_BR_SPPR_SHIFT)|0x3), // default bus clock = 24 Mhz/*
+					.S  = 0x00,
+					.D  = 0x00,
+					.M  = 0x00};
+
+	spi_init(SPI_CH0, &SPI);*/
+
+
+	while(1);
 
 }
-////////////////////////////////////////////////////////////////////////////////
-// EOF
-////////////////////////////////////////////////////////////////////////////////
+
+extern void DMA0_IRQHandler(void){
+
+	DMA0->DMA[0].DSR_BCR |= DMA_DSR_BCR_DONE_MASK;
+}
+

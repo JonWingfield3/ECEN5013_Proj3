@@ -8,6 +8,7 @@
 #ifndef DMA_H_
 #define DMA_H_
 
+#include "MKL25Z4.h"
 
 /* DMAn_SCR bits
  * use these to macros to create a transfer control descriptor (tcd) for DMA channel ctl field*/
@@ -18,7 +19,7 @@
 /* DMA_ERQ used to allow peripheral requests to initiate DMA transfers*/
 #define DMA_ERQ                      ((uint32_t)0x40000000)
 
-/* DMA_CS selects between cycle-stealing(=1) and continuous mode(=0) */
+/* DMA_CS selects between cycle-stealing(   =1) and continuous mode(   =0) */
 #define DMA_CS                       ((uint32_t)0x20000000)
 
 /* DMA_AA sets auto-alignment feature */
@@ -34,12 +35,14 @@
 #define DMA_SSIZE__32BIT             ((uint32_t)0x00000000)
 #define DMA_SSIZE__16BIT             ((uint32_t)0x00200000)
 #define DMA_SSIZE__8BIT              ((uint32_t)0x00100000)
+#define DMA_SSIZE_MASK               ((uint32_t)0x00300000)
 
 /* DMA_DINC configures DMA to auto-increment destination address after each write */
 #define DMA_DINC                     ((uint32_t)0x00080000)
 #define DMA_DSIZE__32BIT             ((uint32_t)0x00000000)
 #define DMA_DSIZE__16BIT             ((uint32_t)0x00040000)
 #define DMA_DSIZE__8BIT              ((uint32_t)0x00020000)
+#define DMA_DSIZE_MASK               ((uint32_t)0x00060000)
 
 /* DMA_START initiates a DMA transfer */
 #define DMA_START                    ((uint32_t)0x00010000)
@@ -142,66 +145,83 @@
 #define DMA_LCH2__3                  ((uint32_t)0x00000003)
 #define DMA_LCH2_CH3                 ((uint32_t)0x00000003)
 
+typedef enum{
+	DMAMUX_UART0_RX         = 2,
+	DMAMUX_UART0_TX         = 3,
+	DMAMUX_UART1_RX         = 4,
+	DMAMUX_UART1_TX         = 5,
+	DMAMUX_UART2_RX         = 6,
+	DMAMUX_UART2_TX         = 7,
+	DMAMUX_SPI0_RX          = 16,
+	DMAMUX_SPI0_TX          = 17,
+	DMAMUX_SPI1_RX          = 18,
+	DMAMUX_SPI1_TX          = 19,
+	DMAMUX_I2C0             = 22,
+	DMAMUX_I2C1             = 23,
+	DMAMUX_TPM0_C0          = 24,
+	DMAMUX_TPM0_C1          = 25,
+	DMAMUX_TPM0_C2          = 26,
+	DMAMUX_TPM0_C3          = 27,
+	DMAMUX_TPM0_C4          = 28,
+	DMAMUX_TPM0_C5          = 29,
+	DMAMUX_TPM1_C0          = 32,
+	DMAMUX_TPM1_C1          = 33,
+	DMAMUX_TPM2_C0          = 34,
+	DMAMUX_TPM2_C1          = 35,
+	DMAMUX_ADC0             = 40,
+	DMAMUX_CMP0             = 42,
+	DMAMUX_DAC0             = 45,
+	DMAMUX_PORTA            = 49,
+	DMAMUX_PORTD            = 52,
+	DMAMUX_TPM0_OVERFLOW    = 54,
+	DMAMUX_TPM1_OVERFLOW    = 55,
+	DMAMUX_TPM2_OVERFLOW    = 56,
+	DMAMUX_TSI              = 57,
+	DMAMUX_ALWAYS_ENABLED1  = 58,
+	DMAMUX_ALWAYS_ENABLED2  = 59,
+	DMAMUX_ALWAYS_ENABLED3  = 60,
+	DMAMUX_ALWAYS_ENABLED4  = 61,
+	DMAMUX_ALWAYS_ENABLED5  = 62,
+	DMAMUX_ALWAYS_ENABLED6  = 63
+}dmamux_peripheral_slot_t;
 
-typedef enum dma_status_t_e{
-	EXAMPLE
+typedef enum{
+	DMA_INIT_CH_SUCCESS,
+	DMA_INVALID_BCR,
+	DMA_INVALID_DATA_SIZES,
+	DMA_INVALID_SAR,
+	DMA_INVALID_DAR,
+	DMA_START_TRANSFER_SUCCESS,
+	DMA_INVALID_CHANNEL,
+	DMA_CONFIG_ERROR,
+	DMA_CH_NOT_OPEN,
+	DMA_CH_OPEN
 }dma_status_t;
 
-typedef enum dma_channel_t_e{
+typedef enum{
 	DMA_CH0,
 	DMA_CH1,
 	DMA_CH2,
 	DMA_CH3
 }dma_channel_t;
 
-typedef struct dma_tcd_s{
-	void* src_addr;      // can be cast to uint8_t*, uint16_t*, uint32_t*
-	void* dst_addr;      // can be cast to uint8_t*, uint16_t*, uint32_t*
-	uint32_t byte_count; // number of bytes for xfer
-	uint32_t ctl;        // control data
-}dma_tcd;
+typedef struct{
+	uint32_t sar;
+	uint32_t dar;
+	uint32_t dsr_bcr; // number of bytes for xfer
+	uint32_t dcr;
+}dma_tcd_t;
 
-dma_status_t dma_init_tcd(dma_tcd* tcd, void* src_addr, void* dst_addr, uint32_t byte_count, uint32_t ctl_data);
-// initialize transfer control descriptor
-
-dma_status_t dma_init_ch(dma_channel_t channel, dma_tcd* tcd);
+dma_status_t dma_init_ch(dma_channel_t channel, dmamux_peripheral_slot_t slot, dma_tcd_t*tcd);
 // initializes DMA CHn with DMA transfer control descriptor (TCD)
 // doesn't start transfer (although ERQ and peripheral request assertion may)
 
 dma_status_t dma_start_transfer(dma_channel_t channel);
 // sets START bit in DMA CHn
 
-dma_status_t dma_get_status(dma_channel_t channel);
-// masks and returns DSRn
+__attribute__((always_inline))
+dma_status_t dma_ch_is_open(dma_channel_t channel);
+// returns 0 or 1 if dma channel is open
 
-
-
-
-/*
- * example code:
- *
- *
- * #define DMA_CTL_DEFAULT ((uint32_t)(DMA_EINT|DMA_SINC|DMA_DINC|DMA_SSIZE_8BIT|DMA_DSIZE_8BITS))
- *
- * void main(void){
- *
- * 	dma_tcd tcd;
- * 	uint8_t src_arr[100];
- * 	uint8_t dst_arr[100];
- *	uint32_t dma_ch0_ctl = DMA_CTL_DEFAULT
- *
- * 	for(int i = 0; i < 100; ++i)
- * 		src_arr[i] = i;
- *
- *	dma_init_tcd(&tcd, (void*)src_arr, (void*)dst_arr, sizeof(src_arr), dma_ch0_ctl);
- *	dma_init_ch(CH0, &tcd);
- *	dma_start_transfer(CH0);
- *
- * }
- *
- *
- *
- *
- */
 
 #endif /* DMA_H_ */

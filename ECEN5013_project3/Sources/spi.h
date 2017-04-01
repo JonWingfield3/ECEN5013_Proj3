@@ -8,6 +8,9 @@
 #ifndef SOURCES_SPI_H_
 #define SOURCES_SPI_H_
 
+#include "MKL25Z4.h"
+#include "circbuf.h"
+
 typedef enum{
 	ERROR,
 	NO_ERROR,
