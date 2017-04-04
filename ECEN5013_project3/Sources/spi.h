@@ -10,12 +10,13 @@
 
 #include "MKL25Z4.h"
 #include "circbuf.h"
+#include "error_codes.h"
 
-typedef enum{
-	ERROR,
-	NO_ERROR,
-	ETC
-}spi_status_t;
+
+#define SPI_CS_PIN
+
+#define CS_LOW() /* pull CS_PIN low */
+#define CS_HIGH()
 
 typedef enum{
 	SPI_CH0,
@@ -23,12 +24,8 @@ typedef enum{
 }spi_channel_t;
 
 
-/*Thoughts:
- * have SPI optionally configured for polling based, interrupt based, or DMA based
- */
-
 /************************************************************************************************
- * spi_status_t spi_init(spi_channel_t channel, SPI_Type* SPI)
+ * error_t spi_init(spi_channel_t channel, SPI_Type* SPI)
  *
  * Description: initializes SPI comm at channel 0 or 1 as specified by channel param
  * 				The initialization values are copied from SPI param. See macros above for more
@@ -42,16 +39,16 @@ typedef enum{
  * 	- SPI_INIT_FAILURE:
  *
  ************************************************************************************************/
-spi_status_t spi_init(spi_channel_t channel, SPI_Type* SPI);
+error_t spi_init(spi_channel_t channel, SPI_Type* SPI);
 
 
-spi_status_t spi_transfer_byte(spi_channel_t channel, uint8_t* tx_data, uint8_t* rx_data);
+error_t spi_transfer_byte(spi_channel_t channel, uint8_t* tx_data, uint8_t* rx_data);
 
 
-spi_status_t spi_transfer_byte_n(spi_channel_t channel, uint8_t* tx_data, uint8_t* rx_data, uint32_t n);
+error_t spi_transfer_byte_n(spi_channel_t channel, uint8_t* tx_data, uint8_t* rx_data, uint32_t n);
 
 
-spi_status_t spi_close(spi_channel_t channel);
+error_t spi_close(spi_channel_t channel);
 
 
 #endif /* SOURCES_SPI_H_ */

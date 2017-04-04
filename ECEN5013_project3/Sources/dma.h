@@ -9,6 +9,8 @@
 #define DMA_H_
 
 #include "MKL25Z4.h"
+#include "error_codes.h"
+#include "proj_defines.h"
 
 /* DMAn_SCR bits
  * use these to macros to create a transfer control descriptor (tcd) for DMA channel ctl field*/
@@ -186,19 +188,6 @@ typedef enum{
 }dmamux_peripheral_slot_t;
 
 typedef enum{
-	DMA_INIT_CH_SUCCESS,
-	DMA_INVALID_BCR,
-	DMA_INVALID_DATA_SIZES,
-	DMA_INVALID_SAR,
-	DMA_INVALID_DAR,
-	DMA_START_TRANSFER_SUCCESS,
-	DMA_INVALID_CHANNEL,
-	DMA_CONFIG_ERROR,
-	DMA_CH_NOT_OPEN,
-	DMA_CH_OPEN
-}dma_status_t;
-
-typedef enum{
 	DMA_CH0,
 	DMA_CH1,
 	DMA_CH2,
@@ -212,15 +201,15 @@ typedef struct{
 	uint32_t dcr;
 }dma_tcd_t;
 
-dma_status_t dma_init_ch(dma_channel_t channel, dmamux_peripheral_slot_t slot, dma_tcd_t*tcd);
+error_t dma_init_ch(dma_channel_t channel, dmamux_peripheral_slot_t slot, dma_tcd_t*tcd);
 // initializes DMA CHn with DMA transfer control descriptor (TCD)
 // doesn't start transfer (although ERQ and peripheral request assertion may)
 
-dma_status_t dma_start_transfer(dma_channel_t channel);
+error_t dma_start_transfer(dma_channel_t channel);
 // sets START bit in DMA CHn
 
 __attribute__((always_inline))
-dma_status_t dma_ch_is_open(dma_channel_t channel);
+error_t dma_ch_is_open(dma_channel_t channel);
 // returns 0 or 1 if dma channel is open
 
 

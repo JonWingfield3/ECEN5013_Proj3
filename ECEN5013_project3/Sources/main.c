@@ -32,47 +32,81 @@
 #include "dma.h"
 #include "spi.h"
 #include "timer.h"
+#include "proj_defines.h"
+#include  "memory.h"
+#include <string.h>
 
+#define TSIZE 1000//0x500
 
+uint32_t t[3];
 
 
 int main(void)
 {
-	systick_init();
-	uint8_t array1[256]; // source
-	uint8_t array2[256]; // dest
+	uint8_t array1[TSIZE]; // source
+	uint8_t array2[TSIZE]; // dest
 	uint32_t i;
-
-	for(i = 0; i < 256; ++i){
-		array1[i] = i;
+	for(i = 0; i < TSIZE; ++i){
+		array1[i] = i%256;
 		array2[i] = 0;
 	}
-	dma_tcd_t ch0_tcd = {.sar = (uint32_t)array1,
-						.dar = (uint32_t)array2,
-						.dsr_bcr = 256,
-						.dcr = (DMA_EINT|DMA_SINC|DMA_SSIZE__8BIT|DMA_DINC|DMA_DSIZE__8BIT)};
-
 	__enable_irq();
 	NVIC_EnableIRQ(DMA0_IRQn);
-	dma_init_ch(DMA_CH0, DMAMUX_ALWAYS_ENABLED1, &ch0_tcd);
-	dma_start_transfer(DMA_CH0);
+	NVIC_EnableIRQ(DMA1_IRQn);
+	NVIC_EnableIRQ(DMA2_IRQn);
+	NVIC_EnableIRQ(DMA3_IRQn);
+	NVIC_EnableIRQ(SysTick_IRQn);
+	systick_init();
 
-	/*SPI_Type SPI = {.C1 = (SPI_C1_SPE_MASK|SPI_C1_MSTR_MASK|SPI_C1_SSOE_MASK),
-					.C2 = 0x00,
-					.BR = ((0x03 << SPI_BR_SPPR_SHIFT)|0x3), // default bus clock = 24 Mhz/*
-					.S  = 0x00,
-					.D  = 0x00,
-					.M  = 0x00};
+/*** TEST 1: string.h implementation ***/
+/*	start_time(t[0]);
+	memmove(array1, array2, TSIZE);
+	stop_time(t[0]);
 
-	spi_init(SPI_CH0, &SPI);*/
+	for(i = 0; i < TSIZE; ++i){
+		array1[i] = i%256;
+		array2[i] = 0;
+	}
+*/
+/*** TEST 2: my implementation without DMA ***/
+	start_time(t[1]);
+	my_memmove(array1, array2, TSIZE);
+	stop_time(t[1]);
 
+	for(i = 0; i < TSIZE; ++i){
+		array1[i] = i%256;
+		array2[i] = 0;
+	}
+
+/*** TEST 3: DMA ***/
+	/*start_time(t[2]);
+	my_memmove_dma_word(array1, array2, 5000);
+*/
 
 	while(1);
-
 }
 
 extern void DMA0_IRQHandler(void){
 
 	DMA0->DMA[0].DSR_BCR |= DMA_DSR_BCR_DONE_MASK;
 }
+
+extern void DMA1_IRQHandler(void){
+
+	DMA0->DMA[1].DSR_BCR |= DMA_DSR_BCR_DONE_MASK;
+}
+
+extern void DMA2_IRQHandler(void){
+
+	DMA0->DMA[2].DSR_BCR |= DMA_DSR_BCR_DONE_MASK;
+}
+
+extern void DMA3_IRQHandler(void){
+
+	//stop_time(t[2]);
+	DMA0->DMA[3].DSR_BCR |= DMA_DSR_BCR_DONE_MASK;
+}
+
+
+
 
