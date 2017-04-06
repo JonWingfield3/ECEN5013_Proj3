@@ -19,6 +19,8 @@ error_t spi_init(spi_channel_t channel, SPI_Type* SPI){
 
 	// init spi in sim
 	SIM_SCGC4 |= SIM_SCGC4_SPI0_MASK;
+	SIM_SCGC5 |= SIM_SCGC5_PORTA_MASK;
+	PORTA_PCR16 |= 0x200;
 
 	SPI_Type* spi_ch_base_ptr;
 	spi_ch_base_ptr = (channel == SPI_CH0) ? SPI0 : SPI1;

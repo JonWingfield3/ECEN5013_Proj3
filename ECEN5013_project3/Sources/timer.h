@@ -49,4 +49,6 @@ uint32_t systick_get_time_since_ms(time_t previous_time);
 
 uint32_t systick_get_time_since_us(time_t previous_time);
 
+void stall(uint32_t t);
+
 #endif /* SOURCES_TIMER_H_ */
