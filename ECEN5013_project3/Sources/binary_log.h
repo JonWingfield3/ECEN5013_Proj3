@@ -96,7 +96,7 @@ BinLogStatus BinLogEvent(CircBuf* CB, BinLogID ID, uint8_t* payload, uint32_t le
  *		- BINLOG_HEAP_FULL: BinLog unable to be created
  *		- BINLOG_SUCCESS: BinLog successfully created
 ******************************************************/
-BinLogStatus BinLogCreate(BinLog** BL , BinLogID ID, uint8_t* payload, uint32_t length);
+static BinLogStatus BinLogCreate(BinLog** BL , BinLogID ID, uint8_t* payload, uint32_t length);
 
 
 /******************************************************

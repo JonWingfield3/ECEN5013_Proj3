@@ -60,12 +60,23 @@ void nrf_write_rf_ch(uint8_t channel) {
 	nrf_write_register(NRF24_RF_CH, channel); // Write channel to RF channel register
 }
 
-uint8_t * nrf_read_TX_ADDR() { // THIS NEEDS TO CHANGED
-	return nrf_read_register(NRF24_TX_ADDR);
+void nrf_read_TX_ADDR(uint8_t * data) { // THIS NEEDS TO CHANGED
+	uint8_t nop = NRF24_NOP;
+	uint8_t reg = NRF24_W_REGISTER|(NRF24_TX_ADDR & NRF24_REGISTER_MASK); // Modify register to pass into spi
+	CS_LOW();
+	spi_transfer_byte(nrf_channel, &reg, data); // Send register address
+	spi_transfer_byte(nrf_channel, &nop, (data)); // Send nop to pull register value
+	spi_transfer_byte(nrf_channel, &nop, (data)); // Send nop to pull register value
+	spi_transfer_byte(nrf_channel, &nop, (data)); // Send nop to pull register value
+	spi_transfer_byte(nrf_channel, &nop, (data)); // Send nop to pull register value
+	CS_HIGH();
 }
 
 void nrf_write_TX_ADDR(uint8_t * tx_addr) { // THIS NEEDS TO BE CHANGED
-	nrf_write_register(NRF24_TX_ADDR, tx_addr);
+	nrf_write_register(NRF24_TX_ADDR, *(tx_addr + 0));
+	nrf_write_register(NRF24_TX_ADDR, *(tx_addr + 1));
+	nrf_write_register(NRF24_TX_ADDR, *(tx_addr + 2));
+	nrf_write_register(NRF24_TX_ADDR, *(tx_addr + 3));
 }
 
 uint8_t nrf_read_fifo_status() {

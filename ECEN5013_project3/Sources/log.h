@@ -11,6 +11,7 @@
 #include "uart.h"
 #include "memory.h"
 #include "circbuf.h"
+#include "data.h"
 #include "proj_defines.h"
 
 typedef enum log_error_t {

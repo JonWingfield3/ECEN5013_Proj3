@@ -216,7 +216,7 @@ uint8_t nrf_read_rf_ch();
 
 void nrf_write_rf_ch(uint8_t channel);
 
-uint8_t * nrf_read_TX_ADDR();
+void nrf_read_TX_ADDR(uint8_t * data);
 
 void nrf_write_TX_ADDR(uint8_t * tx_addr);
 

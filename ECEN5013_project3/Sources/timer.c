@@ -43,9 +43,6 @@ volatile uint32_t systick_get_time_since_ms(time_t previous_time){
 	return systick_get_time_ms() - previous_time;
 }
 
-volatile uint32_t systick_get_time_since_us(time_t previous_time){
-	return systick_get_time_us() - previous_time;
-}
 
 void delay_ms(volatile uint32_t num_ms){
 
@@ -53,7 +50,7 @@ void delay_ms(volatile uint32_t num_ms){
 	while(systick_get_time_since_ms(start) < num_ms);
 }
 
-uint32_t systick_get_time_since_us(time_t previous_time){
+volatile uint32_t systick_get_time_since_us(time_t previous_time){
 	return TICKS_TO_uSEC(systick_get_ticks()) - previous_time;
 }
 
