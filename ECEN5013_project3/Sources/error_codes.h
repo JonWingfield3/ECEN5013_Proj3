@@ -9,10 +9,9 @@
 #define SOURCES_ERROR_CODES_H_
 
 typedef enum{
-	SUCCESS = 0,
-	ERROR,
-	INVALID_PARAM,
-	ETC
+	E_SUCCESS = 0,
+	E_ERROR,
+	E_INVALID_PARAM,
 }error_t;
 
 

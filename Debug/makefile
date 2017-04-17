@@ -34,7 +34,7 @@ ECEN5013_project3.siz \
 
 
 # All Target
-all: ECEN5013_project3.elf secondary-outputs
+all: ECEN5013_project3.elf secondary-outputs rtc
 
 # Tool invocations
 ECEN5013_project3.elf: $(OBJS) $(USER_OBJS)
@@ -65,5 +65,8 @@ secondary-outputs: $(SECONDARY_FLASH) $(SECONDARY_SIZE)
 
 .PHONY: all clean dependents
 .SECONDARY:
+
+.PHONY: rtc 
+	$(shell sed 's/__RTC_TIME__/'"$(date +%s)"'/' ../Sources/rtc.h > temp.c; mv temp.c ../Sources/rtc.h)
 
 -include ../makefile.targets

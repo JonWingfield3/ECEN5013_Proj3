@@ -34,15 +34,41 @@
 #include "timer.h"
 #include "proj_defines.h"
 #include  "memory.h"
+#include "rtc.h"
 #include <string.h>
 
-#define TSIZE 1000//0x500
+#define TSIZE 000//0x500
 
 uint32_t t[3];
 
 
 int main(void)
 {
+	rtc_init();
+	systick_init();
+	__enable_irq();
+
+	uint32_t _time, sys_t;
+	uint32_t i = 0;
+while(1){
+	rtc_get_time(&_time);
+	delay_ms(10000);
+}
+
+
+	SPI_Type SPI = {.C1 = (SPI_C1_SPE_MASK|SPI_C1_MSTR_MASK),
+						.C2 = 0x00,
+						.BR = 0x01, // divide bus clock freq by 4, default bus clock = 20.97152 Mhz/*
+						.M  = 0x00};
+	uint8_t tx_data = 0x44;
+	uint8_t rx_data = 0;
+	spi_init(SPI_CH0, &SPI);
+
+	while(1){
+		spi_transfer_byte(SPI_CH0, &tx_data, &rx_data);
+	}
+
+#ifdef PROFILING
 	uint8_t array1[TSIZE]; // source
 	uint8_t array2[TSIZE]; // dest
 	uint32_t i;
@@ -84,6 +110,7 @@ int main(void)
 */
 
 	while(1);
+#endif
 }
 
 extern void DMA0_IRQHandler(void){

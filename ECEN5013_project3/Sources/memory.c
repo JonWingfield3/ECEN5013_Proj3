@@ -52,11 +52,30 @@ int8_t my_memset_dma(uint8_t* dst, uint32_t length){
 	if(!dst) return PTR_ERROR;
 
 	uint8_t zero_ptr = 0;
+	uint8_t i;
 
-	dma_tcd_t tcd = {.sar = (uint32_t)&zero_ptr,
-				     .dar = (uint32_t)dst,
-				     .dsr_bcr = length,
-				     .dcr = (DMA_EINT|DMA_SSIZE__8BIT|DMA_DINC|DMA_DSIZE__8BIT)};
+	dma_tcd_t tcd;
+
+	tcd.sar = (uint32_t)&zero_ptr;
+	tcd.dar = (uint32_t)dst;
+	if(IS_WORD_ALLIGNED(dst)){ // check if dst address is word-alligned
+
+		tcd.dcr = (DMA_EINT|DMA_SSIZE__32BIT|DMA_DINC|DMA_DSIZE__32BIT);
+
+		if(IS_WORD_ALLIGNED(length))
+			tcd.dsr_bcr = length;
+		else{
+			tcd.dsr_bcr = WORD_ALLIGN(length);
+			// this makes sure that length is mod 4 so word transfer can be completed.
+			for(i = 0; i < length % 4; ++i)
+				*(dst + length - 1 - i) = 0;
+			// manually zero-fill the last few parts of length
+		}
+	}
+	else{ // dst is not word alligned
+		tcd.dsr_bcr = length;
+		tcd.dcr = (DMA_EINT|DMA_SSIZE__8BIT|DMA_DINC|DMA_DSIZE__8BIT);
+	}
 
 	NVIC_EnableIRQ(DMA3_IRQn);
 	dma_init_ch(DMA_CH3, DMAMUX_ALWAYS_ENABLED1, &tcd);

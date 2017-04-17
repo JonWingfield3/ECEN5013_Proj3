@@ -18,7 +18,14 @@
 error_t spi_init(spi_channel_t channel, SPI_Type* SPI){
 
 	// init spi in sim
-	SIM_SCGC4 |= SIM_SCGC4_SPI0_MASK;
+	if(channel == SPI_CH0){
+		SIM_SCGC4 |= SIM_SCGC4_SPI0_MASK;
+		SIM_SCGC5 |= SIM_SCGC5_PORTA_MASK;
+		PORTA_PCR16 |= 0x200;
+	}
+	else{
+		SIM_SCGC4 |= SIM_SCGC4_SPI1_MASK;
+	}
 
 	SPI_Type* spi_ch_base_ptr;
 	spi_ch_base_ptr = (channel == SPI_CH0) ? SPI0 : SPI1;
@@ -34,10 +41,10 @@ error_t spi_transfer_byte(spi_channel_t channel, uint8_t* tx_data, uint8_t* rx_d
 	SPI_Type* spi_ch_base_ptr;
 	spi_ch_base_ptr = (channel == SPI_CH0) ? SPI0 : SPI1;
 
-	CS_LOW();
+	//CS_LOW();
 	while(!(SPI_S_REG(spi_ch_base_ptr) & SPI_S_SPTEF_MASK));
 	SPI_D_REG(spi_ch_base_ptr) = *tx_data;
-	CS_HIGH();
+	//CS_HIGH();
 	while(!(SPI_S_REG(spi_ch_base_ptr) & SPI_S_SPRF_MASK));
 	*rx_data = SPI_D_REG(spi_ch_base_ptr);
 

@@ -362,7 +362,7 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_CONTROL(void)
 
 /** \brief  Set Control Register
 
-    This function writes the given value to the Control Register.
+    This funfction writes the given value to the Control Register.
 
     \param [in]    control  Control Register value to set
  */

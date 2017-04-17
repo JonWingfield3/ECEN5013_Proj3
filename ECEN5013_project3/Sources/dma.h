@@ -147,6 +147,11 @@
 #define DMA_LCH2__3                  ((uint32_t)0x00000003)
 #define DMA_LCH2_CH3                 ((uint32_t)0x00000003)
 
+#define IS_WORD_ALLIGNED(X)          (!((uint32_t)X % 4))
+#define IS_HWORD_ALLIGNED(X)         (!(X % 2))
+#define WORD_ALLIGN(X)               (X & 0xFFFFFFC)
+#define HWORD_ALLIGN(X)              (X & 0xFFFFFFE)
+
 typedef enum{
 	DMAMUX_UART0_RX         = 2,
 	DMAMUX_UART0_TX         = 3,
@@ -209,7 +214,9 @@ error_t dma_start_transfer(dma_channel_t channel);
 // sets START bit in DMA CHn
 
 __attribute__((always_inline))
-error_t dma_ch_is_open(dma_channel_t channel);
+inline uint8_t dma_ch_is_open(dma_channel_t channel){
+	return (DMAMUX0->CHCFG[(uint32_t)channel] & DMAMUX_CHCFG_ENBL_MASK);
+}
 // returns 0 or 1 if dma channel is open
 
 
