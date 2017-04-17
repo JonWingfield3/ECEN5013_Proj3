@@ -53,7 +53,17 @@ void delay_ms(volatile uint32_t num_ms){
 	while(systick_get_time_since_ms(start) < num_ms);
 }
 
+uint32_t systick_get_time_since_us(time_t previous_time){
+	return TICKS_TO_uSEC(systick_get_ticks()) - previous_time;
+}
+
 extern void SysTick_Handler(void){ // interrupts every 0.750 seconds
 	sys_time += (SYST_RVR_RELOAD_MAX + 1);
 	// update system time with number of ticks to have occurred
 }
+
+void stall(uint32_t t) {
+	time_t start = systick_get_ticks(); // Get base ticks
+	while(systick_get_time_since_ms(start) <= t); // Wait until t milliseconds have passed
+}
+

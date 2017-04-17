@@ -51,4 +51,6 @@ volatile uint32_t systick_get_time_since_us(time_t previous_time);
 
 void delay_ms(volatile uint32_t num_ms);
 
+void stall(uint32_t t);
+
 #endif /* SOURCES_TIMER_H_ */
